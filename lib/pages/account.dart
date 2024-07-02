@@ -12,8 +12,8 @@ class _AccountPageState extends State<AccountPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-title: Text("My Account"),
-centerTitle: true,
+      title: Text("My Account"),
+      centerTitle: true,
       ),
 
     );

@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hostel/config/constant.dart';
 import 'package:hostel/pages/account.dart';
 import 'package:hostel/pages/home.dart';
 import 'package:hostel/pages/reservation.dart';
@@ -15,21 +14,22 @@ class NavigationBarPage extends StatefulWidget {
 class _NavigationBarPageState extends State<NavigationBarPage> {
   //States
   int _selectedIndex = 0;
-  static const List<Widget> _pages = <Widget>[
+  static const List<Widget> _pages = [
     SafeArea(
       child: HomePage()),
    SafeArea(child: ReservationPage()),
    SafeArea(child: AccountPage())
   ];
+  
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
       
-body: IndexedStack(
+  body: IndexedStack(
       index: _selectedIndex,
       children: _pages,
     ),
-      bottomNavigationBar: BottomNavigationBar(
+  bottomNavigationBar: BottomNavigationBar(
         items: const [
            BottomNavigationBarItem(
             icon: Icon(Icons.home),
