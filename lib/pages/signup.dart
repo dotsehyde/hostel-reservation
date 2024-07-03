@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hostel/config/constant.dart';
+import 'package:hostel/models/user.dart';
 import 'package:hostel/pages/login.dart';
 import 'package:hostel/pages/navigationBar.dart';
+import 'package:hostel/widgets/dialog_widgets.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
@@ -18,6 +20,7 @@ class _SignupPageState extends State<SignupPage> {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final auth = FirebaseAuth.instance;
 //States
@@ -39,18 +42,25 @@ class _SignupPageState extends State<SignupPage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(
-                        height: size.maxHeight / 5.7,
+                      // SizedBox(
+                      //   height: size.maxHeight / 12,
+                      // ),
+                      Image.asset(
+                        "assets/logo.png",
+                        width: 45.sp,
                       ),
                       Text(
-                        "Register",
-                        style: TextStyle(fontSize: 26.sp),
+                        appName,
+                        style: TextStyle(
+                          fontSize: 26.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Text(
                         "Create an account",
                         style: TextStyle(fontSize: 18.sp),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 10),
                       //Name
                       Container(
                         decoration: BoxDecoration(
@@ -67,6 +77,8 @@ class _SignupPageState extends State<SignupPage> {
                           // border: Border.all(color: Colors.black)
                         ),
                         child: TextFormField(
+                          keyboardType: TextInputType.name,
+                          textInputAction: TextInputAction.next,
                           style: TextStyle(fontSize: 19.sp),
                           controller: nameController,
                           validator: (value) {
@@ -106,6 +118,8 @@ class _SignupPageState extends State<SignupPage> {
                           // border: Border.all(color: Colors.black)
                         ),
                         child: TextFormField(
+                          keyboardType: TextInputType.text,
+                          textInputAction: TextInputAction.next,
                           style: TextStyle(fontSize: 19.sp),
                           controller: studentIdController,
                           validator: (value) {
@@ -143,6 +157,8 @@ class _SignupPageState extends State<SignupPage> {
                           // border: Border.all(color: Colors.black)
                         ),
                         child: TextFormField(
+                          keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
                           style: TextStyle(fontSize: 19.sp),
                           controller: emailController,
                           validator: (value) {
@@ -166,6 +182,45 @@ class _SignupPageState extends State<SignupPage> {
                               )),
                         ),
                       ),
+                      //Phone Number
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.zero,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.6),
+                              spreadRadius: 0,
+                              blurRadius: 0,
+                              offset: const Offset(5, 5),
+                            ),
+                          ],
+                        ),
+                        child: TextFormField(
+                          keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
+                          style: TextStyle(fontSize: 19.sp),
+                          controller: phoneController,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return "Phone is required";
+                            }
+                            if (!value.startsWith("0")) {
+                              return "Phone number must start with 0";
+                            }
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                              border: const OutlineInputBorder(
+                                  borderRadius: BorderRadius.zero),
+                              hintText: "Phone Number",
+                              fillColor: bgColor,
+                              filled: true,
+                              prefixIcon: Icon(
+                                Icons.phone,
+                                size: 22.sp,
+                              )),
+                        ),
+                      ),
                       //Password
                       Container(
                         decoration: BoxDecoration(
@@ -175,13 +230,13 @@ class _SignupPageState extends State<SignupPage> {
                               color: Colors.grey.withOpacity(0.6),
                               spreadRadius: 0,
                               blurRadius: 0,
-                              offset: const Offset(
-                                  5, 5), // changes position of shadow
+                              offset: const Offset(5, 5),
                             ),
                           ],
-                          // border: Border.all(color: Colors.black)
                         ),
                         child: TextFormField(
+                          keyboardType: TextInputType.visiblePassword,
+                          textInputAction: TextInputAction.next,
                           style: TextStyle(fontSize: 19.sp),
                           controller: passwordController,
                           validator: (value) {
@@ -190,13 +245,13 @@ class _SignupPageState extends State<SignupPage> {
                             }
                             return null;
                           },
-                          obscureText: true,
+                          obscureText: !showPass,
                           decoration: InputDecoration(
                               border: const OutlineInputBorder(
                                   borderRadius: BorderRadius.zero),
                               hintText: "Password",
                               fillColor: bgColor,
-                              filled: !showPass,
+                              filled: true,
                               suffixIcon: IconButton(
                                   onPressed: () {
                                     setState(() {
@@ -231,23 +286,25 @@ class _SignupPageState extends State<SignupPage> {
                         ),
                         margin: EdgeInsets.only(bottom: 2.5.h),
                         child: TextFormField(
+                          keyboardType: TextInputType.visiblePassword,
+                          textInputAction: TextInputAction.done,
                           style: TextStyle(fontSize: 19.sp),
                           validator: (value) {
                             if (value!.isEmpty) {
                               return "Confirm Password is required";
                             }
-                            if (passwordController.text == value) {
+                            if (passwordController.text != value) {
                               return "Password do not match";
                             }
                             return null;
                           },
-                          obscureText: true,
+                          obscureText: !showPass,
                           decoration: InputDecoration(
                               border: const OutlineInputBorder(
                                   borderRadius: BorderRadius.zero),
                               hintText: "Confirm Password",
                               fillColor: bgColor,
-                              filled: !showPass,
+                              filled: true,
                               suffixIcon: IconButton(
                                   onPressed: () {
                                     setState(() {
@@ -281,12 +338,9 @@ class _SignupPageState extends State<SignupPage> {
                               shape: const RoundedRectangleBorder(
                                 borderRadius: BorderRadius.zero,
                               )),
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => NavigationBarPage()));
-                            // if (!_formKey.currentState!.validate()) return;
+                          onPressed: () async {
+                            if (!_formKey.currentState!.validate()) return;
+                            await signup();
                           },
                           label: Text(
                             "Register",
@@ -314,13 +368,35 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   //Functions
-  Future<void> signup({required String email, required String password}) async {
+  Future<void> signup() async {
     try {
-      await auth.createUserWithEmailAndPassword(
-          email: email, password: password);
+      loadingDialog(context, text: "Please wait...");
+      var userCred = await auth.createUserWithEmailAndPassword(
+          email: emailController.text, password: passwordController.text);
       //Save to DB
-    } catch (e) {
-      rethrow;
+      await userCred.user!.updateDisplayName(nameController.text);
+      await UserModel(
+              phone: phoneController.text,
+              id: userCred.user!.uid,
+              name: nameController.text,
+              email: emailController.text,
+              studentId: studentIdController.text,
+              photo: "")
+          .save()
+          .then((_) {
+        Navigator.pop(context);
+        setValue("logged", true);
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const NavigationBarPage()));
+      });
+    } on FirebaseAuthException catch (e) {
+      if (!context.mounted) return;
+      Navigator.pop(context);
+      errorDialog(context, message: e.message);
+    } on FirebaseException catch (e) {
+      if (!context.mounted) return;
+      Navigator.pop(context);
+      errorDialog(context, message: e.message);
     }
   }
 }

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hostel/pages/account.dart';
 import 'package:hostel/pages/home.dart';
@@ -15,43 +14,41 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
   //States
   int _selectedIndex = 0;
   static const List<Widget> _pages = [
-    SafeArea(
-      child: HomePage()),
-   SafeArea(child: ReservationPage()),
-   SafeArea(child: AccountPage())
+    SafeArea(child: HomePage()),
+    SafeArea(child: ReservationPage()),
+    SafeArea(child: AccountPage())
   ];
-  
+
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
-      
-  body: IndexedStack(
-      index: _selectedIndex,
-      children: _pages,
-    ),
-  bottomNavigationBar: BottomNavigationBar(
+    return Scaffold(
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
         items: const [
-           BottomNavigationBarItem(
+          BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
           ),
-           BottomNavigationBarItem(
+          BottomNavigationBarItem(
             icon: Icon(Icons.receipt_outlined),
             label: 'Reservations',
           ),
-           BottomNavigationBarItem(
+          BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Account',
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber,
+        selectedItemColor: Colors.green,
         onTap: (int index) {
           setState(() {
             _selectedIndex = index;
           });
         },
-),
+      ),
     );
   }
 }

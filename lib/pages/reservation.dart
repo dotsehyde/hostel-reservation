@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
 
 class ReservationPage extends StatefulWidget {
   const ReservationPage({super.key});
@@ -12,10 +13,12 @@ class _ReservationPageState extends State<ReservationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("My Reservations"),
+        title: Text(
+          "My Reservations",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 23.sp),
+        ),
         centerTitle: true,
       ),
-
     );
   }
 }

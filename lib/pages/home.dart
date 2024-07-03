@@ -17,8 +17,9 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(
-          "Hostels",
+          appName,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 23.sp),
         ),
         elevation: 10,
