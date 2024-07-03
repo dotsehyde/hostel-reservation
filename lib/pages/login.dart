@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hostel/config/constant.dart';
+import 'package:hostel/models/user.dart';
+import 'package:hostel/pages/admin/home.dart';
 import 'package:hostel/pages/navigationBar.dart';
 import 'package:hostel/pages/signup.dart';
 import 'package:hostel/widgets/dialog_widgets.dart';
@@ -21,6 +23,7 @@ class _LoginPageState extends State<LoginPage> {
   final auth = FirebaseAuth.instance;
   //States
   bool showPass = false;
+  bool isAdmin = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,7 +53,51 @@ class _LoginPageState extends State<LoginPage> {
                       "Login into your account",
                       style: TextStyle(fontSize: 18.sp),
                     ),
-                    const SizedBox(height: 20),
+                    // const SizedBox(height: 10),
+                    // Divider(),
+
+                    Text(
+                      "Select account type:",
+                      style: TextStyle(fontSize: 17.sp),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        TextButton(
+                            onPressed: () {
+                              setState(() {
+                                isAdmin = false;
+                              });
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 3.w, vertical: .5.h),
+                              color:
+                                  !isAdmin ? Colors.green : Colors.transparent,
+                              child: Text("Student",
+                                  style: TextStyle(
+                                      fontSize: 18.sp,
+                                      color: !isAdmin ? Colors.white : null)),
+                            )),
+                        TextButton(
+                            onPressed: () {
+                              setState(() {
+                                isAdmin = true;
+                              });
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 3.w, vertical: .5.h),
+                              color:
+                                  isAdmin ? Colors.green : Colors.transparent,
+                              child: Text("Admin",
+                                  style: TextStyle(
+                                      fontSize: 18.sp,
+                                      color: isAdmin ? Colors.white : null)),
+                            )),
+                      ],
+                    ),
+                    // const SizedBox(height: 10),
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.zero,
@@ -59,11 +106,9 @@ class _LoginPageState extends State<LoginPage> {
                             color: Colors.grey.withOpacity(0.6),
                             spreadRadius: 0,
                             blurRadius: 0,
-                            offset: const Offset(
-                                5, 5), // changes position of shadow
+                            offset: const Offset(5, 5),
                           ),
                         ],
-                        // border: Border.all(color: Colors.black)
                       ),
                       child: TextFormField(
                         style: TextStyle(fontSize: 19.sp),
@@ -192,8 +237,16 @@ class _LoginPageState extends State<LoginPage> {
           email: emailController.text, password: passwordController.text);
       if (userCred.user != null) {
         setValue("logged", true);
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const NavigationBarPage()));
+        var aa = await UserModel.checkIsAdmin(userCred.user!.uid);
+        if (aa && isAdmin) {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const AdminHomePage()));
+        } else {
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const NavigationBarPage()));
+        }
       }
     } on FirebaseAuthException catch (e) {
       if (!context.mounted) return;

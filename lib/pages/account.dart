@@ -22,7 +22,7 @@ class _AccountPageState extends State<AccountPage> {
         automaticallyImplyLeading: false,
         title: Text(
           "My Account",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 23.sp),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
         ),
         centerTitle: true,
       ),

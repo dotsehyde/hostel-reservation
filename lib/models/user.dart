@@ -23,9 +23,23 @@ class UserModel {
   final db = FirebaseFirestore.instance;
 
   Future<void> save() {
-    return db.collection('users').doc(id).set(toMap()).catchError((e) {
+    return db
+        .collection('users')
+        .doc(id)
+        .set({...toMap(), "isAdmin": false}).catchError((e) {
       throw e;
     });
+  }
+
+  static Future<bool> checkIsAdmin(String id) async {
+    final doc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(id)
+        .get()
+        .catchError((e) {
+      throw e;
+    });
+    return doc.data()!['isAdmin'] as bool;
   }
 
   static Future<UserModel> getUser(String id) async {

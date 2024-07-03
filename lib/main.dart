@@ -5,11 +5,12 @@ import 'package:hostel/config/constant.dart';
 import 'package:hostel/firebase_options.dart';
 import 'package:hostel/pages/login.dart';
 import 'package:hostel/pages/navigationBar.dart';
-import 'package:hostel/pages/signup.dart';
+import 'package:nb_utils/nb_utils.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initialize();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -34,35 +35,33 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return ResponsiveSizer(builder: (context, orientation, deviceType) {
       return MaterialApp(
-          title: appName,
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-            useMaterial3: true,
-          ),
-          home: StreamBuilder<User?>(
-            stream: auth.authStateChanges(),
-            builder: (context, snap) {
-              if (snap.connectionState == ConnectionState.waiting) {
-                return Scaffold(
-                  body: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        "assets/logo.png",
-                        width: 45.sp,
-                      ),
-                      const CircularProgressIndicator(),
-                    ],
-                  ),
-                );
-              }
-              if (snap.hasData) {
-                return const NavigationBarPage();
-              }
-              return const LoginPage();
-            },
-          ));
+        title: appName,
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+          useMaterial3: true,
+        ),
+        home: getBoolAsync("logged", defaultValue: false)
+            ? const NavigationBarPage()
+            : const LoginPage(),
+      );
     });
   }
+  // return Scaffold(
+  //                 backgroundColor: bgColor,
+  //                 body: Center(
+  //                   child: Column(
+  //                     crossAxisAlignment: CrossAxisAlignment.center,
+  //                     mainAxisAlignment: MainAxisAlignment.center,
+  //                     children: [
+  //                       Image.asset(
+  //                         "assets/logo.png",
+  //                         width: 50.sp,
+  //                       ),
+  //                       const LinearProgressIndicator()
+  //                           .paddingSymmetric(horizontal: 30.w, vertical: 2.h),
+  //                     ],
+  //                   ),
+  //                 ),
+  //               );
 }

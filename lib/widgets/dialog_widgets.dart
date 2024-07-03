@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
 
 ///Error Dialog
 Future errorDialog(BuildContext context, {String? message}) {
@@ -61,7 +62,7 @@ Future loadingDialog(BuildContext context, {required String text}) {
       context: context,
       builder: (context) {
         return AlertDialog(
-          contentPadding: EdgeInsets.all(8),
+          contentPadding: EdgeInsets.all(12),
           backgroundColor: Colors.white,
           shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.zero,
@@ -73,7 +74,10 @@ Future loadingDialog(BuildContext context, {required String text}) {
               const SizedBox(
                 width: 10,
               ),
-              Text(text)
+              Text(
+                text,
+                style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.bold),
+              )
             ],
           ),
         );
