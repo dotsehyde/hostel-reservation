@@ -53,12 +53,14 @@ class UserModel {
     return UserModel.fromMap(doc.data() as Map<String, dynamic>);
   }
 
-  Future<void> update(UserModel user) {
-    return db
-        .collection('users')
-        .doc(user.id)
-        .update(user.toMap())
-        .catchError((e) {
+  static Stream<DocumentSnapshot<Map<String, dynamic>>> streamUser(String id) {
+    final doc =
+        FirebaseFirestore.instance.collection('users').doc(id).snapshots();
+    return doc;
+  }
+
+  Future<void> update() {
+    return db.collection('users').doc(id).update(toMap()).catchError((e) {
       throw e;
     });
   }

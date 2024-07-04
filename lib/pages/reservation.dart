@@ -15,7 +15,7 @@ class _ReservationPageState extends State<ReservationPage> {
       appBar: AppBar(
         title: Text(
           "My Reservations",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 23.sp),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
         ),
         centerTitle: true,
       ),

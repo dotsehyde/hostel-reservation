@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hostel/config/constant.dart';
 import 'package:hostel/models/user.dart';
+import 'package:hostel/pages/edit_profile.dart';
 import 'package:hostel/pages/login.dart';
 import 'package:hostel/widgets/dialog_widgets.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -28,14 +31,14 @@ class _AccountPageState extends State<AccountPage> {
       ),
       body: LayoutBuilder(
         builder: (context, size) {
-          return FutureBuilder<UserModel>(
-              future: UserModel.getUser(auth.currentUser!.uid),
+          return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+              stream: UserModel.streamUser(auth.currentUser!.uid),
               builder: (context, snap) {
                 if (snap.hasError) {
                   return ErrorWidget(snap.error.toString()).paddingAll(10.sp);
                 }
                 if (snap.hasData) {
-                  var user = snap.requireData;
+                  var user = UserModel.fromMap(snap.requireData.data()!);
                   return Column(
                     children: [
                       Container(
@@ -111,11 +114,10 @@ class _AccountPageState extends State<AccountPage> {
                                 shape: BoxShape.circle),
                             child: const Icon(Icons.edit)),
                         onTap: () {
-                          showModalBottomSheet(
-                              context: context,
-                              builder: (context) {
-                                return editSheet(user);
-                              });
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => EditProfilePage(user)));
                         },
                       ),
                       Divider(
@@ -163,54 +165,7 @@ class _AccountPageState extends State<AccountPage> {
               });
         },
       ),
-    );
-  }
-
-  final _formKey = GlobalKey<FormState>();
-  Widget editSheet(UserModel user) {
-    return Container(
-      padding: EdgeInsets.all(3.w),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            TextFormField(
-              initialValue: user.name,
-              decoration: InputDecoration(
-                labelText: "Name",
-                hintText: "Enter your name",
-                prefixIcon: Icon(Icons.person),
-              ),
-            ),
-            TextFormField(
-              initialValue: user.studentId,
-              readOnly: true,
-              decoration: InputDecoration(
-                labelText: "Student ID",
-                hintText: "Enter your student ID",
-                prefixIcon: Icon(Icons.password_rounded),
-              ),
-            ),
-            TextFormField(
-              initialValue: user.email,
-              decoration: InputDecoration(
-                labelText: "Email",
-                hintText: "Enter your email",
-                prefixIcon: Icon(Icons.email),
-              ),
-            ),
-            TextFormField(
-              initialValue: user.phone,
-              decoration: InputDecoration(
-                labelText: "Phone",
-                hintText: "Enter your phone number",
-                prefixIcon: Icon(Icons.phone),
-              ),
-            ),
-            ElevatedButton(onPressed: () {}, child: Text("Update"))
-          ],
-        ),
-      ),
+      // resizeToAvoidBottomInset: true,
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 Future<String> imageToBase64String(XFile image) async {
@@ -9,7 +8,7 @@ Future<String> imageToBase64String(XFile image) async {
   return base64String;
 }
 
-Image base64StringToImage(String base64String) {
+XFile base64StringToImage(String base64String) {
   Uint8List decodedBytes = base64Decode(base64String);
-  return Image.memory(decodedBytes);
+  return XFile.fromData(decodedBytes);
 }

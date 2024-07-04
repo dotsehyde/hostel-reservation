@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hostel/config/constant.dart';
+import 'package:nb_utils/nb_utils.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
 class HomePage extends StatefulWidget {
@@ -61,7 +62,7 @@ class _HomePageState extends State<HomePage> {
                   itemBuilder: (context, i) {
                     return Container(
                       margin: EdgeInsets.only(bottom: 1.5.h),
-                      padding: EdgeInsets.all(5.sp),
+                      padding: EdgeInsets.all(10),
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.zero,
                           boxShadow: [
@@ -75,15 +76,24 @@ class _HomePageState extends State<HomePage> {
                           ],
                           color: Colors.white,
                           border: Border.all(color: Colors.black)),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.image),
-                          Text("Room $i"),
-                          const Text("Price: 1000"),
-                          const Text("Available: Yes"),
-                        ],
-                      ),
+                      child: Row(children: [
+                        Container(
+                          width: 45.sp,
+                          height: 45.sp,
+                          decoration: BoxDecoration(
+                              color: Colors.black,
+                              image: DecorationImage(
+                                  image: AssetImage("assets/logo.png"))),
+                        ).paddingRight(3.w),
+                        Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Avaliable Rooms: $i"),
+                              const Text("Price: 1000"),
+                              const Text("Available: Yes"),
+                            ])
+                      ]),
                     );
                   }),
             ),

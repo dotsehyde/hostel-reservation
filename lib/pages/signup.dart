@@ -68,11 +68,9 @@ class _SignupPageState extends State<SignupPage> {
                                 color: Colors.grey.withOpacity(0.6),
                                 spreadRadius: 0,
                                 blurRadius: 0,
-                                offset: const Offset(
-                                    5, 5), // changes position of shadow
+                                offset: const Offset(5, 5),
                               ),
                             ],
-                            // border: Border.all(color: Colors.black)
                           ),
                           child: TextFormField(
                             keyboardType: TextInputType.name,
@@ -194,7 +192,7 @@ class _SignupPageState extends State<SignupPage> {
                             ],
                           ),
                           child: TextFormField(
-                            keyboardType: TextInputType.emailAddress,
+                            keyboardType: TextInputType.phone,
                             textInputAction: TextInputAction.next,
                             style: TextStyle(fontSize: 19.sp),
                             controller: phoneController,
