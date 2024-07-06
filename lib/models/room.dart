@@ -1,11 +1,14 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:async';
 import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RoomModel {
   final String id;
   final String name;
   final int capacity;
-  final double price;
+  final String price;
   final String image;
   final String description;
   RoomModel({
@@ -17,12 +20,29 @@ class RoomModel {
     required this.description,
   });
 
+  final db = FirebaseFirestore.instance;
+
+  Future<void> save() async {
+    try {
+      await db.collection('rooms').doc(id).set(toMap());
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> update() async {
+    try {
+      await db.collection('rooms').doc(id).update(toMap());
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   RoomModel copyWith({
     String? id,
-    String? hostelId,
     String? name,
     int? capacity,
-    double? price,
+    String? price,
     String? image,
     String? description,
   }) {
@@ -52,7 +72,7 @@ class RoomModel {
       id: map['id'] as String,
       name: map['name'] as String,
       capacity: map['capacity'] as int,
-      price: map['price'] as double,
+      price: map['price'] as String,
       image: map['image'] as String,
       description: map['description'] as String,
     );

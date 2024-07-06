@@ -8,7 +8,7 @@ Future<String> imageToBase64String(XFile image) async {
   return base64String;
 }
 
-XFile base64StringToImage(String base64String) {
+Uint8List base64StringToImage(String base64String) {
   Uint8List decodedBytes = base64Decode(base64String);
-  return XFile.fromData(decodedBytes);
+  return decodedBytes;
 }

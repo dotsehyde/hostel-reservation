@@ -31,6 +31,15 @@ class UserModel {
     });
   }
 
+  Future<void> saveAdmin() {
+    return db
+        .collection('users')
+        .doc(id)
+        .set({...toMap(), "isAdmin": true}).catchError((e) {
+      throw e;
+    });
+  }
+
   static Future<bool> checkIsAdmin(String id) async {
     final doc = await FirebaseFirestore.instance
         .collection('users')

@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hostel/config/constant.dart';
+import 'package:hostel/config/helpers.dart';
 import 'package:hostel/models/user.dart';
 import 'package:hostel/pages/edit_profile.dart';
 import 'package:hostel/pages/login.dart';
@@ -68,9 +71,11 @@ class _AccountPageState extends State<AccountPage> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
                                   CircleAvatar(
-                                    radius: 25.sp,
-                                    backgroundImage:
-                                        const AssetImage("assets/logo.png"),
+                                    radius: 26.sp,
+                                    backgroundImage: user.photo.isEmptyOrNull
+                                        ? const AssetImage("assets/logo.png")
+                                        : MemoryImage(
+                                            base64StringToImage(user.photo)),
                                   ).paddingRight(4.w),
                                   Column(
                                     crossAxisAlignment:
@@ -86,6 +91,10 @@ class _AccountPageState extends State<AccountPage> {
                                       ),
                                       Text(
                                         user.email,
+                                        style: TextStyle(fontSize: 17.sp),
+                                      ),
+                                      Text(
+                                        user.phone,
                                         style: TextStyle(fontSize: 17.sp),
                                       )
                                     ],

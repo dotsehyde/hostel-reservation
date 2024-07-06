@@ -13,6 +13,7 @@ class _ReservationPageState extends State<ReservationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(
           "My Reservations",
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),

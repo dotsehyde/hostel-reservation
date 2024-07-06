@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hostel/config/constant.dart';
 import 'package:hostel/firebase_options.dart';
+import 'package:hostel/pages/admin/home.dart';
 import 'package:hostel/pages/login.dart';
 import 'package:hostel/pages/navigationBar.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -42,7 +43,9 @@ class _MyAppState extends State<MyApp> {
           useMaterial3: true,
         ),
         home: getBoolAsync("logged", defaultValue: false)
-            ? const NavigationBarPage()
+            ? getBoolAsync("isAdmin")
+                ? const AdminHomePage()
+                : const NavigationBarPage()
             : const LoginPage(),
       );
     });

@@ -1,109 +1,56 @@
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hostel/config/constant.dart';
-import 'package:hostel/config/helpers.dart';
 import 'package:hostel/models/user.dart';
 import 'package:hostel/widgets/dialog_widgets.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-class EditProfilePage extends StatefulWidget {
-  final UserModel user;
-  const EditProfilePage(this.user, {super.key});
+class AddAdminUserPage extends StatefulWidget {
+  const AddAdminUserPage({super.key});
 
   @override
-  State<EditProfilePage> createState() => _EditProfilePageState();
+  State<AddAdminUserPage> createState() => _AddAdminUserPageState();
 }
 
-class _EditProfilePageState extends State<EditProfilePage> {
+class _AddAdminUserPageState extends State<AddAdminUserPage> {
   final _formKey = GlobalKey<FormState>();
-  final imagePicker = ImagePicker();
-  late TextEditingController studentIdController =
-      TextEditingController(text: widget.user.studentId);
-  late TextEditingController nameController =
-      TextEditingController(text: widget.user.name);
-  late TextEditingController emailController =
-      TextEditingController(text: widget.user.email);
-  late TextEditingController phoneController =
-      TextEditingController(text: widget.user.phone);
-  XFile? imageFile;
-  Uint8List? imageBytes;
-
-  void chooseImage() {
-    imagePicker.pickImage(source: ImageSource.gallery).then((file) {
-      if (file != null) {
-        setState(() {
-          imageFile = file;
-        });
-      }
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    if (!widget.user.photo.isEmptyOrNull) {
-      setState(() {
-        imageBytes = base64StringToImage(widget.user.photo);
-      });
-    }
-  }
-
+  final studentIdController = TextEditingController();
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final phoneController = TextEditingController();
+  bool showPass = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: bgColor,
-        title: Text(
-          "Edit Profile",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
-        ),
         centerTitle: true,
+        title: Text("Add Admin User",
+            style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold)),
       ),
-      backgroundColor: bgColor,
-      body: Container(
-        padding: EdgeInsets.all(3.w),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 3.w),
             child: Column(
               children: [
-                //Profile Picture
-                GestureDetector(
-                  onTap: () {
-                    chooseImage();
-                  },
-                  child: Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 30.sp,
-                        backgroundImage: imageFile != null
-                            ? FileImage(File(imageFile!.path))
-                            : imageBytes != null
-                                ? MemoryImage(imageBytes!)
-                                : const AssetImage("assets/logo.png"),
-                      ).paddingBottom(2.h),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          padding: EdgeInsets.all(5.sp),
-                          decoration: BoxDecoration(
-                              color: Colors.grey[200], shape: BoxShape.circle),
-                          child: Icon(Icons.camera_alt_outlined),
-                        ),
-                      )
-                    ],
+                60.height,
+                Text(
+                  "Create an admin account",
+                  style: TextStyle(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
+
+                const SizedBox(height: 10),
                 //Name
                 Container(
-                  margin: EdgeInsets.symmetric(vertical: 2.h),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.zero,
                     boxShadow: [
@@ -116,23 +63,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ],
                   ),
                   child: TextFormField(
-                    controller: nameController,
                     keyboardType: TextInputType.name,
                     textInputAction: TextInputAction.next,
                     style: TextStyle(fontSize: 19.sp),
+                    controller: nameController,
                     validator: (value) {
                       if (value!.isEmpty) {
-                        return "Full name is required";
+                        return "Name is required";
                       }
-                      if (value.isEmpty && !value.contains(" ")) {
-                        return "Please enter your full name";
-                      }
+
                       return null;
                     },
                     decoration: InputDecoration(
                         border: const OutlineInputBorder(
                             borderRadius: BorderRadius.zero),
-                        labelText: "Full Name",
+                        hintText: "Name",
                         fillColor: bgColor,
                         filled: true,
                         prefixIcon: Icon(
@@ -142,48 +87,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ),
                 ),
 
-                //Student ID
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.zero,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.6),
-                        spreadRadius: 0,
-                        blurRadius: 0,
-                        offset:
-                            const Offset(5, 5), // changes position of shadow
-                      ),
-                    ],
-                    // border: Border.all(color: Colors.black)
-                  ),
-                  child: TextFormField(
-                    keyboardType: TextInputType.text,
-                    textInputAction: TextInputAction.next,
-                    style: TextStyle(fontSize: 19.sp),
-                    controller: studentIdController,
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return "Student ID is required";
-                      }
-                      return null;
-                    },
-                    decoration: InputDecoration(
-                        border: const OutlineInputBorder(
-                            borderRadius: BorderRadius.zero),
-                        labelText: "Student ID",
-                        fillColor: bgColor,
-                        filled: true,
-                        prefixIcon: Icon(
-                          Icons.password_outlined,
-                          size: 22.sp,
-                        )),
-                  ),
-                ),
-
                 //Email
                 Container(
-                  margin: EdgeInsets.symmetric(vertical: 2.h),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.zero,
                     boxShadow: [
@@ -202,7 +107,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     textInputAction: TextInputAction.next,
                     style: TextStyle(fontSize: 19.sp),
                     controller: emailController,
-                    readOnly: true,
                     validator: (value) {
                       if (value!.isEmpty) {
                         return "Email is required";
@@ -215,7 +119,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     decoration: InputDecoration(
                         border: const OutlineInputBorder(
                             borderRadius: BorderRadius.zero),
-                        labelText: "Email Address",
+                        hintText: "Email Address",
                         fillColor: bgColor,
                         filled: true,
                         prefixIcon: Icon(
@@ -224,8 +128,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         )),
                   ),
                 ),
-
-                //Phone
+                //Phone Number
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.zero,
@@ -255,7 +158,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     decoration: InputDecoration(
                         border: const OutlineInputBorder(
                             borderRadius: BorderRadius.zero),
-                        labelText: "Phone Number",
+                        hintText: "Phone Number",
                         fillColor: bgColor,
                         filled: true,
                         prefixIcon: Icon(
@@ -264,6 +167,109 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         )),
                   ),
                 ),
+                //Password
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.zero,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.6),
+                        spreadRadius: 0,
+                        blurRadius: 0,
+                        offset: const Offset(5, 5),
+                      ),
+                    ],
+                  ),
+                  child: TextFormField(
+                    keyboardType: TextInputType.visiblePassword,
+                    textInputAction: TextInputAction.next,
+                    style: TextStyle(fontSize: 19.sp),
+                    controller: passwordController,
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return "Password is required";
+                      }
+                      return null;
+                    },
+                    obscureText: !showPass,
+                    decoration: InputDecoration(
+                        border: const OutlineInputBorder(
+                            borderRadius: BorderRadius.zero),
+                        hintText: "Password",
+                        fillColor: bgColor,
+                        filled: true,
+                        suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                showPass = !showPass;
+                              });
+                            },
+                            icon: Icon(
+                              showPass
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.remove_red_eye_outlined,
+                              size: 22.sp,
+                            )),
+                        prefixIcon: Icon(
+                          Icons.lock_outline_rounded,
+                          size: 22.sp,
+                        )),
+                  ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.zero,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.6),
+                        spreadRadius: 0,
+                        blurRadius: 0,
+                        offset:
+                            const Offset(5, 5), // changes position of shadow
+                      ),
+                    ],
+                    // border: Border.all(color: Colors.black)
+                  ),
+                  margin: EdgeInsets.only(bottom: 2.5.h),
+                  child: TextFormField(
+                    keyboardType: TextInputType.visiblePassword,
+                    textInputAction: TextInputAction.done,
+                    style: TextStyle(fontSize: 19.sp),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return "Confirm Password is required";
+                      }
+                      if (passwordController.text != value) {
+                        return "Password do not match";
+                      }
+                      return null;
+                    },
+                    obscureText: !showPass,
+                    decoration: InputDecoration(
+                        border: const OutlineInputBorder(
+                            borderRadius: BorderRadius.zero),
+                        hintText: "Confirm Password",
+                        fillColor: bgColor,
+                        filled: true,
+                        suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                showPass = !showPass;
+                              });
+                            },
+                            icon: Icon(
+                              showPass
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.remove_red_eye_outlined,
+                              size: 22.sp,
+                            )),
+                        prefixIcon: Icon(
+                          Icons.lock_outline_rounded,
+                          size: 22.sp,
+                        )),
+                  ),
+                ),
+
                 TextButton.icon(
                     icon: Icon(
                       Icons.arrow_forward_outlined,
@@ -280,36 +286,38 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         )),
                     onPressed: () async {
                       if (!_formKey.currentState!.validate()) return;
-                      await updateProfile();
+                      await create();
                     },
                     label: Text(
-                      "Update Profile",
+                      "Create",
                       style: TextStyle(fontSize: 20.sp),
-                    )).paddingTop(2.h),
+                    )),
               ],
             ),
           ),
         ),
       ),
+      backgroundColor: bgColor,
     );
   }
 
-  Future<void> updateProfile() async {
+  final auth = FirebaseAuth.instance;
+  Future<void> create() async {
     try {
       loadingDialog(context, text: "Please wait...");
-      var updatedUser = UserModel(
-        id: widget.user.id,
-        name: nameController.text,
-        email: emailController.text,
-        phone: phoneController.text,
-        studentId: studentIdController.text,
-        photo: imageFile != null
-            ? await imageToBase64String(imageFile!)
-            : widget.user.photo,
-      );
-      await updatedUser.update();
-      Navigator.pop(context);
-      Navigator.pop(context);
+      var cred = await auth.createUserWithEmailAndPassword(
+          email: emailController.text, password: passwordController.text);
+      var newAdmin = UserModel(
+          id: cred.user!.uid,
+          name: nameController.text,
+          email: emailController.text,
+          phone: phoneController.text,
+          photo: "",
+          studentId: "ADMIN");
+      newAdmin.saveAdmin().then((_) {
+        Navigator.pop(context);
+        Navigator.pop(context);
+      });
     } on FirebaseException catch (e) {
       Navigator.pop(context);
       errorDialog(context, message: e.message);
