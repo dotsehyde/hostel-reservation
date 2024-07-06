@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hostel/config/constant.dart';
+import 'package:hostel/pages/admin/reservations/reserve_list.dart';
 import 'package:hostel/pages/admin/rooms/room_list.dart';
 import 'package:hostel/pages/admin/users/user_list.dart';
 import 'package:hostel/pages/login.dart';
@@ -19,6 +20,17 @@ class _AdminHomePageState extends State<AdminHomePage> {
   final auth = FirebaseAuth.instance;
   @override
   Widget build(BuildContext context) {
+    if (auth.currentUser == null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error, size: 32.sp),
+            Text("You are not logged in")
+          ],
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -32,7 +44,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
       backgroundColor: bgColor,
       body: LayoutBuilder(builder: (context, size) {
         return GridView(
-          padding: EdgeInsets.all(15),
+          padding: const EdgeInsets.all(15),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               mainAxisSpacing: 15, crossAxisSpacing: 15, crossAxisCount: 2),
           children: [
@@ -73,7 +85,12 @@ class _AdminHomePageState extends State<AdminHomePage> {
                     ))),
             //Manage Reservations
             GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ReserveListPage()));
+                },
                 child: Container(
                     padding:
                         EdgeInsets.symmetric(vertical: 1.h, horizontal: 3.w),

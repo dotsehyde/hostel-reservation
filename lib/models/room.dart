@@ -11,6 +11,7 @@ class RoomModel {
   final String price;
   final String image;
   final String description;
+  final DateTime createdAt;
   RoomModel({
     required this.id,
     required this.name,
@@ -18,6 +19,7 @@ class RoomModel {
     required this.price,
     required this.image,
     required this.description,
+    required this.createdAt,
   });
 
   final db = FirebaseFirestore.instance;
@@ -45,6 +47,7 @@ class RoomModel {
     String? price,
     String? image,
     String? description,
+    DateTime? createdAt,
   }) {
     return RoomModel(
       id: id ?? this.id,
@@ -53,6 +56,7 @@ class RoomModel {
       price: price ?? this.price,
       image: image ?? this.image,
       description: description ?? this.description,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 
@@ -64,6 +68,7 @@ class RoomModel {
       'price': price,
       'image': image,
       'description': description,
+      'createdAt': createdAt.toIso8601String(),
     };
   }
 
@@ -75,6 +80,7 @@ class RoomModel {
       price: map['price'] as String,
       image: map['image'] as String,
       description: map['description'] as String,
+      createdAt: DateTime.parse(map['createdAt'] as String),
     );
   }
 
@@ -85,7 +91,7 @@ class RoomModel {
 
   @override
   String toString() {
-    return 'RoomModel(id: $id, name: $name, capacity: $capacity, price: $price, image: $image, description: $description)';
+    return 'RoomModel(id: $id, name: $name, capacity: $capacity, price: $price, image: $image, description: $description, createdAt: $createdAt)';
   }
 
   @override
@@ -97,7 +103,8 @@ class RoomModel {
         other.capacity == capacity &&
         other.price == price &&
         other.image == image &&
-        other.description == description;
+        other.description == description &&
+        other.createdAt == createdAt;
   }
 
   @override
@@ -107,6 +114,7 @@ class RoomModel {
         capacity.hashCode ^
         price.hashCode ^
         image.hashCode ^
-        description.hashCode;
+        description.hashCode ^
+        createdAt.hashCode;
   }
 }

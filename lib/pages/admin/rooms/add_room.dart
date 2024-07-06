@@ -51,7 +51,8 @@ class _AddRoomPageState extends State<AddRoomPage> {
   @override
   void initState() {
     super.initState();
-    if (isUpdate && widget.room!.image.isEmptyOrNull) {
+    if (widget.room != null) {
+      print("Calleed");
       setState(() {
         imageBytes = base64StringToImage(widget.room!.image);
       });
@@ -296,6 +297,7 @@ class _AddRoomPageState extends State<AddRoomPage> {
           name: nameController.text,
           capacity: int.parse(capacityController.text),
           price: priceController.text,
+          createdAt: DateTime.now(),
           image: await imageToBase64String(imageFile!),
           description: descController.text);
       await docRef.set(room.toMap()).then((_) {
@@ -314,6 +316,7 @@ class _AddRoomPageState extends State<AddRoomPage> {
       var room = RoomModel(
           id: widget.room!.id,
           name: nameController.text,
+          createdAt: widget.room!.createdAt,
           capacity: int.parse(capacityController.text),
           price: priceController.text,
           image: imageFile != null

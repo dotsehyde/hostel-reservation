@@ -76,7 +76,7 @@ Future loadingDialog(BuildContext context, {required String text}) {
               ),
               Text(
                 text,
-                style: TextStyle(fontSize: 22.sp, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 19.sp, fontWeight: FontWeight.bold),
               )
             ],
           ),

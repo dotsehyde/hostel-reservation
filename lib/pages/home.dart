@@ -1,8 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hostel/config/constant.dart';
 import 'package:hostel/config/helpers.dart';
+import 'package:hostel/models/reserve.dart';
 import 'package:hostel/models/room.dart';
+import 'package:hostel/models/user.dart';
+import 'package:hostel/widgets/dialog_widgets.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
@@ -14,11 +18,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  //State
-  bool isSearch = false;
   final db = FirebaseFirestore.instance;
   @override
   Widget build(BuildContext context) {
+    if (auth.currentUser == null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error, size: 32.sp),
+            Text("You are not logged in")
+          ],
+        ),
+      );
+    }
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppBar(
@@ -28,28 +41,6 @@ class _HomePageState extends State<HomePage> {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 23.sp),
         ),
         elevation: 10,
-        // scrolledUnderElevation: 10,
-        // bottom: PreferredSize(
-        //     preferredSize: Size(double.infinity, 7.h),
-        //     child: Container(
-        //       padding: EdgeInsets.symmetric(horizontal: 2.w),
-        //       child: TextField(
-        //           onChanged: (v) {
-        //             if (v.isNotEmpty && v.length >= 3) {
-        //               setState(() => isSearch = true);
-        //             }
-        //           },
-        //           style: TextStyle(fontSize: 18.sp),
-        //           decoration: const InputDecoration(
-        //               border: OutlineInputBorder(
-        //                   borderRadius: BorderRadius.zero,
-        //                   borderSide: BorderSide.none),
-        //               filled: true,
-        //               fillColor: Colors.white,
-        //               prefixIcon: Icon(Icons.search),
-        //               hintText: "Search hostel...")),
-        //     )),
-
         backgroundColor: Colors.white,
       ),
       body: LayoutBuilder(
@@ -71,13 +62,31 @@ class _HomePageState extends State<HomePage> {
                       );
                     }
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
+                      return const Center(
                         child: CircularProgressIndicator(),
                       );
                     }
                     var data = snapshot.requireData.docs
                         .map((e) => RoomModel.fromMap(e.data()))
                         .toList();
+                    if (data.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.home,
+                              size: 45.sp,
+                              color: Colors.grey.withOpacity(0.8),
+                            ),
+                            Text(
+                              "No available rooms yet!",
+                              style: TextStyle(fontSize: 22.sp),
+                            ).paddingSymmetric(vertical: 1.h),
+                          ],
+                        ),
+                      );
+                    }
                     return ListView.builder(
                         keyboardDismissBehavior:
                             ScrollViewKeyboardDismissBehavior.onDrag,
@@ -89,31 +98,16 @@ class _HomePageState extends State<HomePage> {
                           var u = data[i];
                           return GestureDetector(
                             onTap: () {
-                              showModalBottomSheet(
+                              showDialog(
                                   context: context,
-                                  backgroundColor: Colors.white,
+                                  // isScrollControlled: true,
                                   builder: (context) {
-                                    return Column(
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text("Hello"),
-                                          ],
-                                        ),
-                                        Spacer(),
-                                        TextButton(
-                                            style: TextButton.styleFrom(
-                                                foregroundColor: Colors.white,
-                                                backgroundColor: Colors.green),
-                                            onPressed: () {},
-                                            child: Text("Reserve Room"))
-                                      ],
-                                    ).paddingAll(10);
+                                    return buildDialog(u);
                                   });
                             },
                             child: Container(
                               margin: EdgeInsets.only(bottom: 1.5.h),
-                              padding: EdgeInsets.all(10),
+                              padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.zero,
                                   boxShadow: [
@@ -121,8 +115,7 @@ class _HomePageState extends State<HomePage> {
                                       color: Colors.grey.withOpacity(0.6),
                                       spreadRadius: 0,
                                       blurRadius: 0,
-                                      offset: const Offset(
-                                          5, 8), // changes position of shadow
+                                      offset: const Offset(5, 8),
                                     ),
                                   ],
                                   color: Colors.white,
@@ -156,22 +149,23 @@ class _HomePageState extends State<HomePage> {
                                             Icon(
                                               Icons.bed,
                                               size: 20.sp,
-                                            ).paddingRight(2.w),
+                                            ).paddingRight(1.w),
                                             Text(
-                                              u.capacity.toString(),
+                                              " ${u.capacity} beds",
                                               style: TextStyle(
                                                 fontSize: 18.sp,
                                               ),
                                             ),
                                           ],
-                                        ),
+                                        ).paddingBottom(1.h),
                                         Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.end,
                                           children: [
                                             Text(
-                                              "GHS ${u.price}/room",
+                                              "GHS ${u.price}/bed",
                                               style: TextStyle(
+                                                  color: Colors.green[800],
                                                   fontSize: 19.sp,
                                                   fontWeight: FontWeight.bold),
                                             ),
@@ -187,6 +181,119 @@ class _HomePageState extends State<HomePage> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  final auth = FirebaseAuth.instance;
+
+  Widget buildDialog(RoomModel u) {
+    return AlertDialog(
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                CircleAvatar(
+                  radius: 20.sp,
+                  child: IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                )
+              ],
+            ),
+            const Divider(),
+            Container(
+              width: 100.sp,
+              height: 70.sp,
+              decoration: BoxDecoration(
+                  color: Colors.green[200],
+                  image: DecorationImage(
+                      fit: BoxFit.fitWidth,
+                      image: MemoryImage(base64StringToImage(u.image)))),
+            ),
+            Text(
+              u.name,
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
+            ).paddingTop(1.h),
+            Text(u.description),
+            const Divider(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("GHS ${u.price}", style: TextStyle(fontSize: 18.sp)),
+                TextButton(
+                    style: TextButton.styleFrom(
+                        shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero),
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.green),
+                    onPressed: u.capacity < 1
+                        ? null
+                        : () {
+                            confirmDialog(context,
+                                title: "Reserve bed",
+                                message:
+                                    "Are you want to reserve this bed at ${u.name}?",
+                                onConfirm: () async {
+                              try {
+                                Navigator.pop(context);
+                                loadingDialog(context,
+                                    text: "Reserving room...");
+                                var user = await UserModel.getUser(
+                                    auth.currentUser!.uid);
+                                //check if user has already reserved a room
+                                // var res = await db
+                                //     .collection("reservations")
+                                //     .where("bookerId", isEqualTo: user.id)
+                                //     .get();
+                                // if (res.docs.isNotEmpty) {
+                                //   Navigator.pop(context);
+                                //   errorDialog(context,
+                                //       message:
+                                //           "You have already reserved a room");
+                                //   return;
+                                // }
+                                if (u.capacity == 0) {
+                                  Navigator.pop(context);
+                                  errorDialog(context, message: "Room is full");
+                                  return;
+                                }
+                                var docRef =
+                                    db.collection('reservations').doc();
+                                var reserve = ReserveModel(
+                                    id: docRef.id,
+                                    bookerId: user.id,
+                                    roomId: u.id,
+                                    room: u,
+                                    booker: user,
+                                    createdAt: DateTime.now(),
+                                    status: "active");
+                                await docRef.set(reserve.toMap());
+                                //update room capacity
+                                await db
+                                    .collection('rooms')
+                                    .doc(u.id)
+                                    .update({'capacity': u.capacity - 1});
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                              } on FirebaseException catch (error) {
+                                Navigator.pop(context);
+                                errorDialog(context, message: error.message);
+                              }
+                            });
+                          },
+                    child: Text("Reserve Room",
+                        style: TextStyle(fontSize: 18.sp))),
+              ],
+            )
+          ],
+        ).paddingAll(10),
       ),
     );
   }
