@@ -61,7 +61,7 @@ class _RoomListPageState extends State<RoomListPage> {
                       style: TextStyle(fontSize: 22.sp),
                     ).paddingSymmetric(vertical: 1.h),
                     Text(
-                      "Clicke the button below to create a room",
+                      "Click the button below to create a room",
                       style: TextStyle(fontSize: 16.sp),
                     )
                   ],

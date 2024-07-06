@@ -52,7 +52,14 @@ class _AccountPageState extends State<AccountPage> {
                     return ErrorWidget(snap.error.toString()).paddingAll(10.sp);
                   }
                   if (snap.hasData) {
-                    var user = UserModel.fromMap(snap.requireData.data()!);
+                    var user = snap.data == null
+                        ? UserModel(
+                            id: "",
+                            name: "name",
+                            email: "email",
+                            studentId: "studentId",
+                            photo: "photo")
+                        : UserModel.fromMap(snap.requireData.data()!);
                     return Column(
                       children: [
                         Container(
