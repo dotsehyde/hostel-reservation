@@ -116,6 +116,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ],
                   ),
                   child: TextFormField(
+                    readOnly: true,
                     controller: nameController,
                     keyboardType: TextInputType.name,
                     textInputAction: TextInputAction.next,
@@ -168,6 +169,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       }
                       return null;
                     },
+                    readOnly: true,
                     decoration: InputDecoration(
                         border: const OutlineInputBorder(
                             borderRadius: BorderRadius.zero),

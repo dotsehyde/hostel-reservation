@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hostel/config/constant.dart';
@@ -23,8 +24,10 @@ class _SignupPageState extends State<SignupPage> {
   final phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final auth = FirebaseAuth.instance;
+  final db = FirebaseFirestore.instance;
 //States
   bool showPass = false;
+  bool enableReg = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,6 +62,84 @@ class _SignupPageState extends State<SignupPage> {
                           style: TextStyle(fontSize: 18.sp),
                         ),
                         const SizedBox(height: 10),
+                        //Student ID
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.zero,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.6),
+                                      spreadRadius: 0,
+                                      blurRadius: 0,
+                                      offset: const Offset(
+                                          5, 5), // changes position of shadow
+                                    ),
+                                  ],
+                                  // border: Border.all(color: Colors.black)
+                                ),
+                                child: TextFormField(
+                                  keyboardType: TextInputType.text,
+                                  textInputAction: TextInputAction.next,
+                                  style: TextStyle(fontSize: 19.sp),
+                                  controller: studentIdController,
+                                  validator: (value) {
+                                    if (value!.isEmpty) {
+                                      return "Student ID is required";
+                                    }
+                                    return null;
+                                  },
+                                  decoration: InputDecoration(
+                                      border: const OutlineInputBorder(
+                                          borderRadius: BorderRadius.zero),
+                                      hintText: "Student ID",
+                                      fillColor: bgColor,
+                                      filled: true,
+                                      prefixIcon: Icon(
+                                        Icons.password_outlined,
+                                        size: 22.sp,
+                                      )),
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                                iconAlignment: IconAlignment.end,
+                                style: TextButton.styleFrom(
+                                    minimumSize: Size(5.w, 2.h),
+                                    foregroundColor: Colors.white,
+                                    backgroundColor: Colors.green,
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 15.w, vertical: 1.h),
+                                    shape: const RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.zero,
+                                    )),
+                                onPressed: () async {
+                                  loadingDialog(context, text: "Checking...");
+                                  db
+                                      .collection("studentId")
+                                      .doc(studentIdController.text)
+                                      .get()
+                                      .then((doc) {
+                                    Navigator.pop(context);
+                                    if (!doc.exists) {
+                                      errorDialog(context,
+                                          message: "Student not found");
+                                    }
+                                    setState(() {
+                                      nameController.text = doc.get("name");
+                                      enableReg = true;
+                                    });
+                                  });
+                                },
+                                child: Text(
+                                  "Check",
+                                  style: TextStyle(fontSize: 20.sp),
+                                )),
+                          ],
+                        ),
+
                         //Name
                         Container(
                           decoration: BoxDecoration(
@@ -73,6 +154,7 @@ class _SignupPageState extends State<SignupPage> {
                             ],
                           ),
                           child: TextFormField(
+                            readOnly: true,
                             keyboardType: TextInputType.name,
                             textInputAction: TextInputAction.next,
                             style: TextStyle(fontSize: 19.sp),
@@ -94,44 +176,6 @@ class _SignupPageState extends State<SignupPage> {
                                 filled: true,
                                 prefixIcon: Icon(
                                   Icons.person_outline_outlined,
-                                  size: 22.sp,
-                                )),
-                          ),
-                        ),
-                        //Student ID
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.zero,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.6),
-                                spreadRadius: 0,
-                                blurRadius: 0,
-                                offset: const Offset(
-                                    5, 5), // changes position of shadow
-                              ),
-                            ],
-                            // border: Border.all(color: Colors.black)
-                          ),
-                          child: TextFormField(
-                            keyboardType: TextInputType.text,
-                            textInputAction: TextInputAction.next,
-                            style: TextStyle(fontSize: 19.sp),
-                            controller: studentIdController,
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return "Student ID is required";
-                              }
-                              return null;
-                            },
-                            decoration: InputDecoration(
-                                border: const OutlineInputBorder(
-                                    borderRadius: BorderRadius.zero),
-                                hintText: "Student ID",
-                                fillColor: bgColor,
-                                filled: true,
-                                prefixIcon: Icon(
-                                  Icons.password_outlined,
                                   size: 22.sp,
                                 )),
                           ),
@@ -334,10 +378,18 @@ class _SignupPageState extends State<SignupPage> {
                                 shape: const RoundedRectangleBorder(
                                   borderRadius: BorderRadius.zero,
                                 )),
-                            onPressed: () async {
-                              if (!_formKey.currentState!.validate()) return;
-                              await signup();
-                            },
+                            onPressed: !enableReg
+                                ? () {
+                                    errorDialog(context,
+                                        message:
+                                            "Please check student ID first.");
+                                  }
+                                : () async {
+                                    if (!_formKey.currentState!.validate()) {
+                                      return;
+                                    }
+                                    await signup();
+                                  },
                             label: Text(
                               "Register",
                               style: TextStyle(fontSize: 20.sp),

@@ -50,21 +50,4 @@ class _MyAppState extends State<MyApp> {
       );
     });
   }
-  // return Scaffold(
-  //                 backgroundColor: bgColor,
-  //                 body: Center(
-  //                   child: Column(
-  //                     crossAxisAlignment: CrossAxisAlignment.center,
-  //                     mainAxisAlignment: MainAxisAlignment.center,
-  //                     children: [
-  //                       Image.asset(
-  //                         "assets/logo.png",
-  //                         width: 50.sp,
-  //                       ),
-  //                       const LinearProgressIndicator()
-  //                           .paddingSymmetric(horizontal: 30.w, vertical: 2.h),
-  //                     ],
-  //                   ),
-  //                 ),
-  //               );
 }
