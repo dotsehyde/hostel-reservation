@@ -38,7 +38,7 @@ class _AccountPageState extends State<AccountPage> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(
-            "My Account",
+            "My Profile",
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.sp),
           ),
           centerTitle: true,

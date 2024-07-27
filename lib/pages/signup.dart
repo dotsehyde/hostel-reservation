@@ -394,6 +394,7 @@ class _SignupPageState extends State<SignupPage> {
                               "Register",
                               style: TextStyle(fontSize: 20.sp),
                             )),
+
                         TextButton(
                             onPressed: () {
                               Navigator.push(

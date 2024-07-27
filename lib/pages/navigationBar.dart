@@ -38,7 +38,7 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: 'Account',
+            label: 'My Profile',
           ),
         ],
         currentIndex: _selectedIndex,

@@ -6,6 +6,7 @@ import 'package:hostel/config/helpers.dart';
 import 'package:hostel/models/reserve.dart';
 import 'package:hostel/models/room.dart';
 import 'package:hostel/models/user.dart';
+import 'package:hostel/pages/payment.dart';
 import 'package:hostel/widgets/dialog_widgets.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -236,57 +237,11 @@ class _HomePageState extends State<HomePage> {
                     onPressed: u.capacity < 1
                         ? null
                         : () {
-                            confirmDialog(context,
-                                title: "Reserve bed",
-                                message:
-                                    "Are you want to reserve this bed at ${u.name}?",
-                                onConfirm: () async {
-                              try {
-                                Navigator.pop(context);
-                                loadingDialog(context,
-                                    text: "Reserving room...");
-                                var user = await UserModel.getUser(
-                                    auth.currentUser!.uid);
-                                //check if user has already reserved a room
-                                // var res = await db
-                                //     .collection("reservations")
-                                //     .where("bookerId", isEqualTo: user.id)
-                                //     .get();
-                                // if (res.docs.isNotEmpty) {
-                                //   Navigator.pop(context);
-                                //   errorDialog(context,
-                                //       message:
-                                //           "You have already reserved a room");
-                                //   return;
-                                // }
-                                if (u.capacity == 0) {
-                                  Navigator.pop(context);
-                                  errorDialog(context, message: "Room is full");
-                                  return;
-                                }
-                                var docRef =
-                                    db.collection('reservations').doc();
-                                var reserve = ReserveModel(
-                                    id: docRef.id,
-                                    bookerId: user.id,
-                                    roomId: u.id,
-                                    room: u,
-                                    booker: user,
-                                    createdAt: DateTime.now(),
-                                    status: "active");
-                                await docRef.set(reserve.toMap());
-                                //update room capacity
-                                await db
-                                    .collection('rooms')
-                                    .doc(u.id)
-                                    .update({'capacity': u.capacity - 1});
-                                Navigator.pop(context);
-                                Navigator.pop(context);
-                              } on FirebaseException catch (error) {
-                                Navigator.pop(context);
-                                errorDialog(context, message: error.message);
-                              }
-                            });
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        PaymentPage(room: u)));
                           },
                     child: Text("Reserve Room",
                         style: TextStyle(fontSize: 18.sp))),
