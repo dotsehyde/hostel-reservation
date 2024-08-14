@@ -1,13 +1,25 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hostel/config/constant.dart';
+import 'package:hostel/models/reserve.dart';
+import 'package:hostel/models/room.dart';
 import 'package:hostel/pages/admin/reservations/reserve_list.dart';
 import 'package:hostel/pages/admin/rooms/room_list.dart';
+import 'package:hostel/pages/admin/saved_reports.dart';
 import 'package:hostel/pages/admin/users/user_list.dart';
 import 'package:hostel/pages/login.dart';
 import 'package:hostel/widgets/dialog_widgets.dart';
+import 'package:intl/intl.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key});
@@ -18,6 +30,22 @@ class AdminHomePage extends StatefulWidget {
 
 class _AdminHomePageState extends State<AdminHomePage> {
   final auth = FirebaseAuth.instance;
+
+  Future<void> requestStoragePermission() async {
+    var status = await Permission.storage.status;
+    if (!status.isGranted) {
+      await Permission.storage.request();
+    }
+  }
+
+  @override
+  void initState() {
+    Future.delayed(Duration.zero, () async {
+      await requestStoragePermission();
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (auth.currentUser == null) {
@@ -26,7 +54,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.error, size: 32.sp),
-            Text("You are not logged in")
+            const Text("You are not logged in")
           ],
         ),
       );
@@ -156,6 +184,79 @@ class _AdminHomePageState extends State<AdminHomePage> {
                         ),
                       ],
                     ))),
+            GestureDetector(
+                onTap: () {
+                  loadingDialog(context, text: "Generating Report...");
+                  generatePdf().then((_) {
+                    Navigator.pop(context);
+                    // Show the Snackbar
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Report generated successfully!'),
+                    ));
+                  });
+                },
+                child: Container(
+                    padding:
+                        EdgeInsets.symmetric(vertical: 1.h, horizontal: 3.w),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.6),
+                            spreadRadius: 0,
+                            blurRadius: 0,
+                            offset: const Offset(
+                                5, 8), // changes position of shadow
+                          ),
+                        ],
+                        border: Border.all(color: Colors.black),
+                        borderRadius: BorderRadius.zero),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.file_copy, size: 25.sp).paddingBottom(2.h),
+                        Text(
+                          "Generate Report",
+                          style: TextStyle(
+                              fontSize: 18.sp, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ))),
+            GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SavedReportsPage()),
+                  );
+                },
+                child: Container(
+                    padding:
+                        EdgeInsets.symmetric(vertical: 1.h, horizontal: 3.w),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.6),
+                            spreadRadius: 0,
+                            blurRadius: 0,
+                            offset: const Offset(
+                                5, 8), // changes position of shadow
+                          ),
+                        ],
+                        border: Border.all(color: Colors.black),
+                        borderRadius: BorderRadius.zero),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.file_copy, size: 25.sp).paddingBottom(2.h),
+                        Text(
+                          "View Reports",
+                          style: TextStyle(
+                              fontSize: 18.sp, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ))),
+
             //Logout
             GestureDetector(
               onTap: () {
@@ -210,5 +311,71 @@ class _AdminHomePageState extends State<AdminHomePage> {
         );
       }),
     );
+  }
+
+  Future<void> generatePdf() async {
+    final pdf = pw.Document();
+    final db = FirebaseFirestore.instance;
+
+    // Fetch rooms from Firestore and await the result
+    List<RoomModel> rooms = [];
+    final roomSnap = await db.collection("rooms").get();
+    for (var d in roomSnap.docs) {
+      RoomModel room = RoomModel.fromMap(d.data());
+      rooms.add(room);
+      print(room.name);
+    }
+
+    // Add the content to the PDF
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            mainAxisAlignment: pw.MainAxisAlignment.start,
+            crossAxisAlignment: pw.CrossAxisAlignment.center,
+            children: [
+              pw.Text(
+                'HostelHub Report',
+                style: const pw.TextStyle(fontSize: 40),
+              ),
+              pw.Divider(),
+              ...rooms.map((r) {
+                return pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      r.name,
+                      style: const pw.TextStyle(fontSize: 20),
+                    ),
+                    pw.Text(
+                      r.description,
+                      style: const pw.TextStyle(fontSize: 15),
+                    ),
+                    pw.Text(
+                      "${r.price} per bed",
+                      style: const pw.TextStyle(fontSize: 15),
+                    ),
+                    pw.Text(
+                      "Beds Left: ${r.capacity}",
+                      style: const pw.TextStyle(fontSize: 15),
+                    ),
+                    pw.Divider(),
+                  ],
+                );
+              }).toList(),
+            ],
+          );
+        },
+      ),
+    );
+
+    // Get the directory to save the file
+    final output = await getApplicationDocumentsDirectory();
+    // Create a unique file name using the current timestamp
+    final fileName =
+        "report_${DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.pdf";
+    final file = File("${output.path}/$fileName");
+    // Save the PDF file
+    await file.writeAsBytes(await pdf.save());
   }
 }
