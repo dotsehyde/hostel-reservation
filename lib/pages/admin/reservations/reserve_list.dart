@@ -146,7 +146,7 @@ class _ReserveListPageState extends State<ReserveListPage> {
                             builder: (context, snap) {
                               if (snap.hasData) {
                                 var room = snap.requireData.data();
-                                return Text("Hostel: ${room!['name']}",
+                                return Text("Hostel: ${room?['name'] ?? "N/A"}",
                                     style: TextStyle(fontSize: 16.sp));
                               }
                               return Text("Room: Loading...",
