@@ -4,20 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:hostel/config/constant.dart';
 import 'package:hostel/config/helpers.dart';
 import 'package:hostel/models/room.dart';
+import 'package:hostel/pages/admin/hostel/add_hostel.dart';
 import 'package:hostel/pages/admin/rooms/add_room.dart';
+import 'package:hostel/pages/admin/rooms/room_list.dart';
 import 'package:hostel/widgets/dialog_widgets.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-class RoomListPage extends StatefulWidget {
-  final RoomModel room;
-  const RoomListPage({super.key, required this.room});
+class HostelListPage extends StatefulWidget {
+  const HostelListPage({super.key});
 
   @override
-  State<RoomListPage> createState() => _RoomListPageState();
+  State<HostelListPage> createState() => _HostelListPageState();
 }
 
-class _RoomListPageState extends State<RoomListPage> {
+class _HostelListPageState extends State<HostelListPage> {
   final db = FirebaseFirestore.instance;
   final auth = FirebaseAuth.instance;
   @override
@@ -26,16 +27,12 @@ class _RoomListPageState extends State<RoomListPage> {
       appBar: AppBar(
         backgroundColor: bgColor,
         centerTitle: true,
-        title: Text("Rooms",
+        title: Text("Hostel",
             style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold)),
       ),
       backgroundColor: bgColor,
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: db
-            .collection("rooms")
-            .doc(widget.room.id)
-            .collection("rooms")
-            .snapshots(),
+        stream: db.collection("rooms").snapshots(),
         builder: (context, snap) {
           if (snap.hasError) {
             return Center(
@@ -97,25 +94,47 @@ class _RoomListPageState extends State<RoomListPage> {
                       style: TextStyle(
                           fontSize: 17.sp, fontWeight: FontWeight.bold),
                     ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    subtitle: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.bed,
-                              size: 20.sp,
-                            ).paddingRight(2.w),
-                            Text(
-                              u.capacity.toString(),
-                              style: TextStyle(fontSize: 17.sp),
-                            ),
-                          ],
-                        ),
-                        Text(
-                          "GHS ${u.price}",
-                          style: TextStyle(fontSize: 17.sp),
-                        ),
+                        StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                            stream: db
+                                .collection("rooms")
+                                .doc(u.id)
+                                .collection("rooms")
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Text("loading...");
+                              }
+                              var count = snapshot.requireData.docs.length;
+                              return Row(
+                                children: [
+                                  Icon(
+                                    Icons.house,
+                                    size: 20.sp,
+                                  ).paddingRight(2.w),
+                                  Text(
+                                    count.toString(),
+                                    style: TextStyle(fontSize: 17.sp),
+                                  ),
+                                ],
+                              );
+                            }),
+                        TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          RoomListPage(room: u)));
+                            },
+                            child: Text("View")),
+                        // Text(
+                        //   "No ${u.price}",
+                        //   style: TextStyle(fontSize: 17.sp),
+                        // ),
                       ],
                     ),
                     trailing: SizedBox(
@@ -131,8 +150,8 @@ class _RoomListPageState extends State<RoomListPage> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => AddRoomPage(
-                                            roomId: widget.room.id, room: u)));
+                                        builder: (context) =>
+                                            AddHostelPage(room: u)));
                               },
                               icon: Icon(Icons.edit, color: Colors.white),
                             ),
@@ -145,8 +164,9 @@ class _RoomListPageState extends State<RoomListPage> {
                               onPressed: () {
                                 confirmDialog(context,
                                     message:
-                                        "Are you sure you want to delete this room?",
-                                    title: "Delete room", onConfirm: () async {
+                                        "Are you sure you want to delete this hostel?",
+                                    title: "Delete hostel",
+                                    onConfirm: () async {
                                   await db
                                       .collection("rooms")
                                       .doc(u.id)
@@ -175,12 +195,8 @@ class _RoomListPageState extends State<RoomListPage> {
       ),
       floatingActionButton: FloatingActionButton(
           onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => AddRoomPage(
-                          roomId: widget.room.id,
-                        )));
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const AddHostelPage()));
           },
           child: Icon(Icons.add)),
     );

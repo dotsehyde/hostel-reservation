@@ -2,10 +2,12 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:hostel/config/constant.dart';
 import 'package:hostel/models/reserve.dart';
 import 'package:hostel/models/room.dart';
+import 'package:hostel/pages/admin/hostel/hostel_list.dart';
 import 'package:hostel/pages/admin/reservations/reserve_list.dart';
 import 'package:hostel/pages/admin/rooms/room_list.dart';
 import 'package:hostel/pages/admin/saved_reports.dart';
@@ -30,6 +32,8 @@ class AdminHomePage extends StatefulWidget {
 
 class _AdminHomePageState extends State<AdminHomePage> {
   final auth = FirebaseAuth.instance;
+  final db = FirebaseFirestore.instance;
+  final messaging = FirebaseMessaging.instance;
 
   Future<void> requestStoragePermission() async {
     var status = await Permission.storage.status;
@@ -40,6 +44,14 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
   @override
   void initState() {
+    messaging.getToken().then((token) {
+      if (auth.currentUser != null) {
+        db
+            .collection("users")
+            .doc(auth.currentUser!.uid)
+            .update({"token": token});
+      }
+    });
     Future.delayed(Duration.zero, () async {
       await requestStoragePermission();
     });
@@ -82,7 +94,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const RoomListPage()));
+                          builder: (context) => const HostelListPage()));
                 },
                 child: Container(
                     padding:
@@ -105,7 +117,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                       children: [
                         Icon(Icons.home, size: 25.sp).paddingBottom(2.h),
                         Text(
-                          "Manage Rooms",
+                          "Manage Hostels",
                           style: TextStyle(
                               fontSize: 18.sp, fontWeight: FontWeight.bold),
                         ),
@@ -323,7 +335,6 @@ class _AdminHomePageState extends State<AdminHomePage> {
     for (var d in roomSnap.docs) {
       RoomModel room = RoomModel.fromMap(d.data());
       rooms.add(room);
-      print(room.name);
     }
 
     // Add the content to the PDF

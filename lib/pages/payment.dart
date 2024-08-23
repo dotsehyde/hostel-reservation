@@ -11,7 +11,8 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 
 class PaymentPage extends StatefulWidget {
   final RoomModel room;
-  const PaymentPage({super.key, required this.room});
+  final String hostelId;
+  const PaymentPage({super.key, required this.room, required this.hostelId});
 
   @override
   State<PaymentPage> createState() => _PaymentPageState();
@@ -167,7 +168,7 @@ class _PaymentPageState extends State<PaymentPage> {
                           var reserve = ReserveModel(
                               id: docRef.id,
                               bookerId: user.id,
-                              roomId: u.id,
+                              roomId: widget.hostelId,
                               room: u,
                               booker: user,
                               createdAt: DateTime.now(),
@@ -176,6 +177,8 @@ class _PaymentPageState extends State<PaymentPage> {
                           //update room capacity
                           await db
                               .collection('rooms')
+                              .doc(widget.hostelId)
+                              .collection("rooms")
                               .doc(u.id)
                               .update({'capacity': u.capacity - 1});
                           Navigator.pop(context);

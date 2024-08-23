@@ -114,8 +114,13 @@ class _ReservationPageState extends State<ReservationPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text("Name: ${u.booker.name}",
-                              style: TextStyle(fontSize: 16.sp)),
+                          SizedBox(
+                            width: 50.w,
+                            child: Text("Name: ${u.booker.name}",
+                                style: TextStyle(
+                                    fontSize: 16.sp,
+                                    overflow: TextOverflow.ellipsis)),
+                          ),
                           Text("Student ID: ${u.booker.studentId}",
                               style: TextStyle(fontSize: 16.sp)),
                         ],
@@ -134,6 +139,18 @@ class _ReservationPageState extends State<ReservationPage> {
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 17.sp),
                       ),
+                      StreamBuilder(
+                          stream:
+                              db.collection("rooms").doc(u.roomId).snapshots(),
+                          builder: (context, snap) {
+                            if (snap.hasData) {
+                              var room = snap.requireData.data();
+                              return Text("Hostel: ${room!['name']}",
+                                  style: TextStyle(fontSize: 16.sp));
+                            }
+                            return Text("Room: Loading...",
+                                style: TextStyle(fontSize: 16.sp));
+                          }),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [

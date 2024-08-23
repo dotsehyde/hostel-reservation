@@ -8,20 +8,26 @@ environment:
   sdk: ">=3.4.0 <4.0.0"
 
 dependencies:
-  image_picker: ^1.1.2
+  awesome_notifications: null
+  awesome_notifications_fcm: null
   cloud_firestore: ^5.0.2
   cupertino_icons: ^1.0.6
+  dio: ^5.6.0
+  easy_pdf_viewer: ^1.0.8
   firebase_auth: ^5.1.1
   firebase_core: ^3.1.1
-  pdf: ^3.10.4
-  printing: ^5.9.0
-  path_provider: ^2.0.11
-  intl: ^0.17.0
-  easy_pdf_viewer: ^1.0.8
-  permission_handler: ^9.1.0
+  firebase_messaging: ^15.0.4
+  googleapis_auth: ^1.6.0
   flutter:
     sdk: flutter
+  get: ^4.6.6
+  image_picker: ^1.1.2
+  intl: ^0.17.0
   nb_utils: ^7.0.3
+  path_provider: ^2.0.11
+  pdf: ^3.10.4
+  permission_handler: ^9.1.0
+  printing: ^5.9.0
   responsive_sizer: ^3.3.1
 
 dev_dependencies:
@@ -34,7 +40,6 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
-
   # example:
   # fonts:
   #   - family: Schyler

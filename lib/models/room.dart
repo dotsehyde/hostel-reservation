@@ -32,9 +32,14 @@ class RoomModel {
     }
   }
 
-  Future<void> update() async {
+  Future<void> update(String roomId) async {
     try {
-      await db.collection('rooms').doc(id).update(toMap());
+      await db
+          .collection('rooms')
+          .doc(roomId)
+          .collection("rooms")
+          .doc(id)
+          .update(toMap());
     } catch (e) {
       rethrow;
     }

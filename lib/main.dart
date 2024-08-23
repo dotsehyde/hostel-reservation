@@ -1,7 +1,10 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hostel/config/constant.dart';
+import 'package:hostel/config/notification.dart';
 import 'package:hostel/firebase_options.dart';
 import 'package:hostel/pages/admin/home.dart';
 import 'package:hostel/pages/login.dart';
@@ -29,6 +32,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    CustomNotification.initRemoteNotifications(debug: true);
   }
 
   final auth = FirebaseAuth.instance;

@@ -13,25 +13,20 @@ import 'package:image_picker/image_picker.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 
-class AddRoomPage extends StatefulWidget {
-  final String roomId;
+class AddHostelPage extends StatefulWidget {
   final RoomModel? room;
-  const AddRoomPage({super.key, this.room, required this.roomId});
+  const AddHostelPage({super.key, this.room});
 
   @override
-  State<AddRoomPage> createState() => _AddRoomPageState();
+  State<AddHostelPage> createState() => _AddHostelPageState();
 }
 
-class _AddRoomPageState extends State<AddRoomPage> {
+class _AddHostelPageState extends State<AddHostelPage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController nameController =
       TextEditingController(text: widget.room?.name);
   late TextEditingController descController =
       TextEditingController(text: widget.room?.description);
-  late TextEditingController priceController =
-      TextEditingController(text: widget.room?.price);
-  late TextEditingController capacityController =
-      TextEditingController(text: widget.room?.capacity.toString());
 
   late bool isUpdate = widget.room != null;
 
@@ -53,7 +48,6 @@ class _AddRoomPageState extends State<AddRoomPage> {
   void initState() {
     super.initState();
     if (widget.room != null) {
-      print("Calleed");
       setState(() {
         imageBytes = base64StringToImage(widget.room!.image);
       });
@@ -66,7 +60,7 @@ class _AddRoomPageState extends State<AddRoomPage> {
       appBar: AppBar(
         backgroundColor: bgColor,
         centerTitle: true,
-        title: Text(isUpdate ? "Update Room" : "Add Room",
+        title: Text(isUpdate ? "Update Hostel" : "Add Hostel",
             style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold)),
       ),
       body: Form(
@@ -174,82 +168,6 @@ class _AddRoomPageState extends State<AddRoomPage> {
                     ),
                   ),
                 ),
-                //Capacity
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      width: 45.w,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.zero,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.6),
-                            spreadRadius: 0,
-                            blurRadius: 0,
-                            offset: const Offset(5, 5),
-                          ),
-                        ],
-                      ),
-                      child: TextFormField(
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: false,
-                        ),
-                        textInputAction: TextInputAction.next,
-                        style: TextStyle(fontSize: 19.sp),
-                        controller: capacityController,
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return "No. of bed is required";
-                          }
-                          return null;
-                        },
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.zero),
-                          labelText: "No. of Beds",
-                          fillColor: bgColor,
-                          filled: true,
-                        ),
-                      ),
-                    ),
-                    //Price
-                    Container(
-                      width: 45.w,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.zero,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.6),
-                            spreadRadius: 0,
-                            blurRadius: 0,
-                            offset: const Offset(5, 5),
-                          ),
-                        ],
-                      ),
-                      child: TextFormField(
-                        keyboardType: TextInputType.number,
-                        textInputAction: TextInputAction.done,
-                        style: TextStyle(fontSize: 19.sp),
-                        controller: priceController,
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return "Price is required";
-                          }
-                          return null;
-                        },
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.zero),
-                          labelText: "Price",
-                          prefixText: "GHS ",
-                          fillColor: bgColor,
-                          filled: true,
-                        ),
-                      ),
-                    ),
-                  ],
-                ).paddingBottom(3.h),
 
                 TextButton.icon(
                     icon: Icon(
@@ -292,17 +210,15 @@ class _AddRoomPageState extends State<AddRoomPage> {
         return;
       }
       loadingDialog(context, text: "Please wait...");
-      var docRef =
-          db.collection("rooms").doc(widget.roomId).collection("rooms").doc();
-      var room = RoomModel(
-          id: docRef.id,
-          name: nameController.text,
-          capacity: int.parse(capacityController.text),
-          price: priceController.text,
-          createdAt: DateTime.now(),
-          image: await imageToBase64String(imageFile!),
-          description: descController.text);
-      await docRef.set(room.toMap()).then((_) {
+      var docRef = db.collection("rooms").doc();
+      var room = {
+        "id": docRef.id,
+        "name": nameController.text,
+        "createdAt": DateTime.now(),
+        "image": await imageToBase64String(imageFile!),
+        "description": descController.text
+      };
+      await docRef.set(room).then((_) {
         Navigator.pop(context);
         Navigator.pop(context);
       });
@@ -315,17 +231,14 @@ class _AddRoomPageState extends State<AddRoomPage> {
   Future<void> update() async {
     try {
       loadingDialog(context, text: "Please wait...");
-      var room = RoomModel(
-          id: widget.room!.id,
-          name: nameController.text,
-          createdAt: widget.room!.createdAt,
-          capacity: int.parse(capacityController.text),
-          price: priceController.text,
-          image: imageFile != null
-              ? await imageToBase64String(imageFile!)
-              : widget.room!.image,
-          description: descController.text);
-      await room.update(widget.roomId).then((_) {
+      var room = {
+        "name": nameController.text,
+        "image": imageFile != null
+            ? await imageToBase64String(imageFile!)
+            : widget.room!.image,
+        "description": descController.text
+      };
+      await db.collection('rooms').doc(widget.room!.id).update(room).then((_) {
         Navigator.pop(context);
         Navigator.pop(context);
       });
