@@ -25,6 +25,31 @@ Future errorDialog(BuildContext context, {String? message}) {
       });
 }
 
+///Success Dialog
+Future successDialog(BuildContext context,
+    {required String title, String? message}) {
+  return showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.zero,
+              side: BorderSide(color: Colors.black, width: 1)),
+          title: Text(title),
+          content: Text(message ?? "Something went wrong"),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("OK"))
+          ],
+        );
+      });
+}
+
 //Confirm Dialog
 Future confirmDialog(BuildContext context,
     {required String message, title, required Function onConfirm}) {

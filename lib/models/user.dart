@@ -10,6 +10,7 @@ class UserModel {
   final String studentId;
   final String photo;
   final String phone;
+  final String token;
   UserModel({
     required this.id,
     required this.name,
@@ -17,6 +18,7 @@ class UserModel {
     required this.studentId,
     required this.photo,
     this.phone = "",
+    this.token = "",
   });
 
   ///Function
@@ -111,6 +113,7 @@ class UserModel {
       studentId: map['studentId'] as String,
       photo: map['photo'] as String,
       phone: map['phone'] as String,
+      token: map['token'] ?? "",
     );
   }
 

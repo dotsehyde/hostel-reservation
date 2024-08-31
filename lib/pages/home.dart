@@ -55,9 +55,20 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: bgColor,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text(
-          appName,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 23.sp),
+        title: GestureDetector(
+          onTap: () async {
+            var token = await messaging.getToken();
+            if (token != null) {
+              FcmHelper.sendNotification(
+                  toToken: token,
+                  title: "This is a test",
+                  body: "This is a test notification");
+            }
+          },
+          child: Text(
+            appName,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 23.sp),
+          ),
         ),
         elevation: 10,
         backgroundColor: Colors.white,

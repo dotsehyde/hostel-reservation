@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hostel/config/constant.dart';
 import 'package:hostel/config/helpers.dart';
+import 'package:hostel/config/notification.dart';
 import 'package:hostel/models/reserve.dart';
 import 'package:hostel/models/room.dart';
 import 'package:hostel/pages/admin/rooms/add_room.dart';
@@ -197,6 +198,13 @@ class _ReserveListPageState extends State<ReserveListPage> {
                                             .update({
                                           "status": "checked in"
                                         }).then((_) {
+                                          if (u.booker.token.isNotEmpty) {
+                                            FcmHelper.sendNotification(
+                                                toToken: u.booker.token,
+                                                title: "Checked In",
+                                                body:
+                                                    "You have been checked in successfully. Enjoy your stay!");
+                                          }
                                           Navigator.pop(context);
                                           Navigator.pop(context);
                                         }).catchError((e) {
